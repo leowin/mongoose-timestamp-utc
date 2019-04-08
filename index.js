@@ -6,6 +6,7 @@
  */
 
 var defaults = require('defaults');
+var moment = require('moment');
 
 function timestampsPlugin(schema, options) {
     var updatedAt = 'updatedAt';
@@ -53,11 +54,11 @@ function timestampsPlugin(schema, options) {
         }
         schema.pre('save', function(next) {
             if (this.isNew) {
-                var newDate = new Date;
+                var newDate = moment.utc();
                 if (createdAt) this[createdAt] = newDate;
                 if (updatedAt) this[updatedAt] = newDate;
             } else if (this.isModified() && updatedAt) {
-                this[updatedAt] = new Date;
+                this[updatedAt] = moment.utc();
             }
             next();
         });
@@ -71,11 +72,11 @@ function timestampsPlugin(schema, options) {
         }
         schema.pre('save', function(next) {
             if (!this[createdAt]) {
-                var newDate = new Date;
+                var newDate = moment.utc();
                 if (createdAt) this[createdAt] = newDate;
                 if (updatedAt) this[updatedAt] = newDate;
             } else if (this.isModified() && updatedAt) {
-                this[updatedAt] = new Date;
+                this[updatedAt] = moment.utc();
             }
             next();
         });
@@ -83,7 +84,7 @@ function timestampsPlugin(schema, options) {
 
     schema.pre('findOneAndUpdate', function(next) {
     if (this.op === 'findOneAndUpdate') {
-        var newDate = new Date;
+        var newDate = moment.utc();
         this._update = this._update || {};
         if (createdAt) {
             if (this._update[createdAt]) {
@@ -102,7 +103,7 @@ function timestampsPlugin(schema, options) {
 
     schema.pre('update', function(next) {
     if (this.op === 'update') {
-        var newDate = new Date;
+        var newDate = moment.utc();
         this._update = this._update || {};
         if (createdAt) {
             if (this._update[createdAt]) {
@@ -121,7 +122,7 @@ function timestampsPlugin(schema, options) {
 
     if(!schema.methods.hasOwnProperty('touch') && updatedAt)
     schema.methods.touch = function(callback){
-        this[updatedAt] = new Date;
+        this[updatedAt] = moment.utc();
         this.save(callback);
     }
 
